@@ -10,7 +10,9 @@ class BaynoteHeap extends SplMaxHeap {
 
 class Baynote {
     
-    public function find2HighestNumber($arrayOfNumbers, $type='loop') {
+    private $arrayOfNumbers;
+    
+    public function __construct($arrayOfNumbers) {
         
         if(!is_array($arrayOfNumbers)) {
             # do some error logging if required
@@ -23,16 +25,24 @@ class Baynote {
             }
         }
         
+        $this->arrayOfNumbers = $arrayOfNumbers;
+        
+    }
+    
+    public function find2HighestNumber($type='loop') {
+        
+        
+        
         switch($type) {
             case 'heap' :
-                $twoHighest = $this->_heap($arrayOfNumbers);
+                $twoHighest = $this->_heap();
                 break;
             case 'sorting' :
-                $twoHighest = $this->_sorting($arrayOfNumbers);
+                $twoHighest = $this->_sorting();
                 break;
             default :
             case 'loop' :
-                $twoHighest = $this->_loop($arrayOfNumbers);
+                $twoHighest = $this->_loop();
                 break;
             
         }
@@ -47,13 +57,13 @@ class Baynote {
      * @param array $arrayOfNumbers
      * @return array 
      */
-    private function _heap($arrayOfNumbers) {
+    private function _heap() {
         $maxHeap = new BaynoteHeap();
        
-        array_map(array($maxHeap, 'insert'), $arrayOfNumbers);
-        # note array_map is approxiamntely 25% quicker than looping through array
+        array_map(array($maxHeap, 'insert'), $this->arrayOfNumbers);
+        # NOTE, my benchmark shows array_map is quicker than looping through array (foreach - below)
         
-        #foreach($arrayOfNumbers as $number) {
+        #foreach($this->arrayOfNumbers as $number) {
         #    $maxHeap->insert($number);
         #}
         
@@ -68,9 +78,9 @@ class Baynote {
      * @param array $arrayOfNumbers
      * @return array 
      */
-    private function _sorting($arrayOfNumbers) {
-        asort($arrayOfNumbers);
-        $sortedNumbers = array_slice($arrayOfNumbers, -2);
+    private function _sorting() {
+        asort($this->arrayOfNumbers);
+        $sortedNumbers = array_slice($this->arrayOfNumbers, -2);
         $highest = $sortedNumbers[1];
         $secondHighest = $sortedNumbers[0];
         return array($highest, $secondHighest);
@@ -82,10 +92,10 @@ class Baynote {
      * @param array $arrayOfNumbers
      * @return array 
      */
-    private function _loop($arrayOfNumbers) {
+    private function _loop() {
         $highest = null;
         $secondHighest = null;
-        foreach($arrayOfNumbers as $number) {
+        foreach($this->arrayOfNumbers as $number) {
             if($number > $highest) {
                 $secondHighest = $highest;
                 $highest = $number;
@@ -107,24 +117,24 @@ for($i=1; $i<= 10000; ++$i) {
 #echo 'Array Generation: '.$time."<br /><br />";
 
 try {
-    $Baynote = new Baynote();
+    $Baynote = new Baynote($arrayOfNumbers);
 
     # This is best way to calculate the 2 numbers with O(N)
     $time=microtime(true);
-    $twoHighest = $Baynote->find2HighestNumber($arrayOfNumbers, 'loop');
+    $twoHighest = $Baynote->find2HighestNumber('loop');
     $time=microtime(true)-$time;
     echo 'Loop: '.$time."\n";
     var_dump($twoHighest);
 
     # I also wanted to tryout a couple of alternatives to compare speed
     $time=microtime(true);
-    $twoHighest = $Baynote->find2HighestNumber($arrayOfNumbers, 'heap');
+    $twoHighest = $Baynote->find2HighestNumber('heap');
     $time=microtime(true)-$time;
     echo 'Heap: '.$time."\n";
     var_dump($twoHighest);
 
     $time=microtime(true);
-    $twoHighest = $Baynote->find2HighestNumber($arrayOfNumbers, 'sorting');
+    $twoHighest = $Baynote->find2HighestNumber('sorting');
     $time=microtime(true)-$time;
     echo 'Sorting: '.$time."\n";
     var_dump($twoHighest);
