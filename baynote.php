@@ -10,10 +10,17 @@ class BaynoteHeap extends SplMaxHeap {
 
 class Baynote {
     
-    public function find2HighestNumber($arrayOfNumbers, $type='heap') {
+    public function find2HighestNumber($arrayOfNumbers, $type='loop') {
         
         if(!is_array($arrayOfNumbers)) {
-            return false;
+            # do some error logging if required
+            throw new Exception('The first parameter must be an array');
+        }
+        
+        foreach($arrayOfNumbers as $number) {
+            if(!is_numeric($number)) {
+                throw new Exception('All elements in the array must have a numeric value');
+            }
         }
         
         switch($type) {
@@ -23,6 +30,7 @@ class Baynote {
             case 'sorting' :
                 $twoHighest = $this->_sorting($arrayOfNumbers);
                 break;
+            default :
             case 'loop' :
                 $twoHighest = $this->_loop($arrayOfNumbers);
                 break;
@@ -90,33 +98,39 @@ class Baynote {
     }
 }
 
-$time=microtime(true);
+#$time=microtime(true);
 $arrayOfNumbers = array();
 for($i=1; $i<= 10000; ++$i) {
     $arrayOfNumbers[] = rand(1, 99999);
 }
-$time=microtime(true)-$time;
-echo 'Array Generation: '.$time."<br /><br />";
+#$time=microtime(true)-$time;
+#echo 'Array Generation: '.$time."<br /><br />";
 
-$Baynote = new Baynote();
+try {
+    $Baynote = new Baynote();
 
-# This is best way to calculate the 2 numbers with O(N)
-$time=microtime(true);
-$twoHighest = $Baynote->find2HighestNumber($arrayOfNumbers, 'loop');
-$time=microtime(true)-$time;
-echo 'Loop: '.$time."\n";
-var_dump($twoHighest);
+    # This is best way to calculate the 2 numbers with O(N)
+    $time=microtime(true);
+    $twoHighest = $Baynote->find2HighestNumber($arrayOfNumbers, 'loop');
+    $time=microtime(true)-$time;
+    echo 'Loop: '.$time."\n";
+    var_dump($twoHighest);
 
+    # I also wanted to tryout a couple of alternatives to compare speed
+    $time=microtime(true);
+    $twoHighest = $Baynote->find2HighestNumber($arrayOfNumbers, 'heap');
+    $time=microtime(true)-$time;
+    echo 'Heap: '.$time."\n";
+    var_dump($twoHighest);
 
-# I also wanted to tryout a couple of alternatives to compare speed
-$time=microtime(true);
-$twoHighest = $Baynote->find2HighestNumber($arrayOfNumbers, 'heap');
-$time=microtime(true)-$time;
-echo 'Heap: '.$time."\n";
-var_dump($twoHighest);
-
-$time=microtime(true);
-$twoHighest = $Baynote->find2HighestNumber($arrayOfNumbers, 'sorting');
-$time=microtime(true)-$time;
-echo 'Sorting: '.$time."\n";
-var_dump($twoHighest);
+    $time=microtime(true);
+    $twoHighest = $Baynote->find2HighestNumber($arrayOfNumbers, 'sorting');
+    $time=microtime(true)-$time;
+    echo 'Sorting: '.$time."\n";
+    var_dump($twoHighest);
+    
+} catch (Exception $e) {
+    #var_dump($e);
+    # Handle Exception however you require / logging, output etc";
+    echo $e->getMessage();
+}
